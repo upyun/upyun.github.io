@@ -3,6 +3,7 @@ layout: post
 title: 改善 HTTPS 访问安全性
 date: 2015-03-10 11:43:23
 author: timebug
+comments: true
 ---
 
 2014 年 4 月 OpenSSL 的心血漏洞 [Heartbleed](http://heartbleed.com/) 着实让大家对互联网安全捏了一把冷汗。同年 10 月份又相继爆出 [POODLE](http://en.wikipedia.org/wiki/POODLE) 安全漏洞攻击，该漏洞可以让攻击者利用 SSLv3 协议设计中的缺陷，通过中间人攻击的手段来窃取用户信息，Google 研究员最先披露了有关该漏洞的[细节](http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html)。
@@ -155,3 +156,9 @@ server {
 ~~~
 
 以上配置在 NGINX 1.7.10 和 OpenSSL 1.0.2 上经过测试，同时也建议大家及时升级到相应的最新版本。
+
+其他参考：
+
+* [http://nginx.com/blog/nginx-poodle-ssl/]()
+* [https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html]()
+* [http://nginx.com/blog/nginx-05-june-2014-openssl-security-advisory/]()
