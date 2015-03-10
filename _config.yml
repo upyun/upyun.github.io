@@ -1,0 +1,15 @@
+# Site settings
+title: The UPYUN Engineering Blog
+email: support@upyun.com
+description: > # this means to ignore newlines until "baseurl:"
+  Information from UPYUN's engineering team about our technology, tools and events.
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://io.upyun.com" # the base hostname & protocol for your site
+github_username:  upyun
+
+# Build settings
+markdown: kramdown
+
+# Custom settings
+permalink: pretty
+remoteurl: "http://onepiece.b0.upaiyun.com"
