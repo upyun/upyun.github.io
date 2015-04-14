@@ -125,7 +125,7 @@ end
 
 由于 ngx.shared.DICT 只能存放字符串形式的值（Lua 里面字符串和字节流是一回事），所以即使缓存命中，那么在使用前，还是需要将其反序列化为 Lua Table 才行。而无论是 JSON 还是 MessagePack，序列化、反序列操作都是需要消耗一些 CPU 的。
 
-如果你的业务场景无法忍受这种程度消耗，那么不妨可以尝试下这个库：[lua-resty-lrucache](https://github.com/openresty/lua-resty-lrucache)。它直接基于 LuaJIT FFI 实现，能直接将 Lua Table 缓存起来，这样就不需要额外的序列化反序列化过程了。当然，我们目前还没尝试这么做，如果要做的话，建议在 shcache 共享内存缓存层之上再加一层 lrucache，也就是多一级缓存层出来，且这层缓存层是 Worker 独立的，当然缓存过期时间也应该设置得更短些。
+如果你的业务场景无法忍受这种程度的消耗，那么不妨可以尝试下这个库：[lua-resty-lrucache](https://github.com/openresty/lua-resty-lrucache)。它直接基于 LuaJIT FFI 实现，能直接将 Lua Table 缓存起来，这样就不需要额外的序列化反序列化过程了。当然，我们目前还没尝试这么做，如果要做的话，建议在 shcache 共享内存缓存层之上再加一层 lrucache，也就是多一级缓存层出来，且这层缓存层是 Worker 独立的，当然缓存过期时间也应该设置得更短些。
 
 ### 节点健康检查
 
@@ -189,9 +189,9 @@ _M.api = {
 
 上面简单给出了这个模块的一个配置示例，checkups 同时包括了主动和被动健康检查两种机制，我们看到上面 `checkup_timer_interval` 的配置项，就是用来设置主动健康检查间隔时间的。
 
-特别地，我们会在 NGINX Worker 初始阶段创建一个全局唯一的 timer 定时器，它会根据设置的间隔时间进行轮训，对所监控的后端节点进行心跳检查，如果发现异常就会主动将此节点暂时从可用列表中剔除掉；反之，就会重新加入进来。`checkup_timer_overtime` 配置项，跟我们使用了共享内存锁有关，它用来确保即使 timer 所在的 Worker 由于某种异常 Crash 了，其它 Worker 也能在这个时间过期后新起一个新的 timer，当然存活的 timer 会始终去更新这个共享内存锁的状态。
+特别地，我们会在 NGINX Worker 初始阶段创建一个全局唯一的 timer 定时器，它会根据设置的间隔时间进行轮询，对所监控的后端节点进行心跳检查，如果发现异常就会主动将此节点暂时从可用列表中剔除掉；反之，就会重新加入进来。`checkup_timer_overtime` 配置项，跟我们使用了共享内存锁有关，它用来确保即使 timer 所在的 Worker 由于某种异常 Crash 了，其它 Worker 也能在这个时间过期后新起一个新的 timer，当然存活的 timer 会始终去更新这个共享内存锁的状态。
 
-其它被动健康检查方面，跟 NGINX 核心提供的机制差不多，我们也是仿照他们设计的，唯一区别比较大的是，我们提供了多级 server 的配置策略，例如上面就配置了两个 server 层级，默认始终使用 level 1，当且仅当 level 1 的节点全部宕机的时候，此时才会切换使用 level 2，特别地，每层 level 多个节点默认都是轮训的，当然我们也提供配置项可以特殊设置为一致性哈希的均衡策略。这样一来，同时满足了负载均衡和主备切换两种模式。
+其它被动健康检查方面，跟 NGINX 核心提供的机制差不多，我们也是仿照他们设计的，唯一区别比较大的是，我们提供了多级 server 的配置策略，例如上面就配置了两个 server 层级，默认始终使用 level 1，当且仅当 level 1 的节点全部宕机的时候，此时才会切换使用 level 2，特别地，每层 level 多个节点默认都是轮询的，当然我们也提供配置项可以特殊设置为一致性哈希的均衡策略。这样一来，同时满足了负载均衡和主备切换两种模式。
 
 另外，基于 [lua-upstream-nginx-module](https://github.com/openresty/lua-upstream-nginx-module) 模块，checkups 还能直接访问 nginx.conf 中的 upstream 配置，也可以修改某个 server 的状态，这样主动健康检查就能使用在 NGINX 核心的 upstream 模块上了。
 
