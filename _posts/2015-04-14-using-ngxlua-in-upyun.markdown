@@ -150,7 +150,7 @@ upstream api.com {
 
 `proxy_next_upstream_tries` 是 NGINX 1.7.5 版本后才引入的指令，可以允许自定义重试次数，原本默认重试次数等于 upstream 内配置的 server 个数（当然标记为 down 的除外）。
 
-但只有被动健康检查的话，我们始终无法回避一个问题，即我们始终要将真实的线上请求转发到可能已经宕机的后端去，否则我们就无法及时感知到这台宕机的机器当前是不是已经恢复了。当然，NGINX PLUS 商业版是有主动监控检查功能的，它通过 [health_check](http://nginx.com/products/application-health-checks/) 这个指令来实现，当然我们这里就不展开说了，说多了都是泪。另外 Taobao 开源的 [Tengine](http://tengine.taobao.org/) 也支持这个[特性](http://tengine.taobao.org/document_cn/http_upstream_check_cn.html)，建议大家也可以尝试下。
+但只有被动健康检查的话，我们始终无法回避一个问题，即我们始终要将真实的线上请求转发到可能已经宕机的后端去，否则我们就无法及时感知到这台宕机的机器当前是不是已经恢复了。当然，NGINX Plus 商业版是有主动健康检查功能的，它通过 [health_check](http://nginx.com/products/application-health-checks/) 这个指令来实现，当然我们这里就不展开说了，说多了都是泪。另外 Taobao 开源的 [Tengine](http://tengine.taobao.org/) 也支持这个[特性](http://tengine.taobao.org/document_cn/http_upstream_check_cn.html)，建议大家也可以尝试下。
 
 > lua-resty-checkups - 纯 Lua 实现的节点健康检查模块。
 
