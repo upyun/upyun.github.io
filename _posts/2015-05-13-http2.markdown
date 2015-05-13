@@ -1,0 +1,106 @@
+---
+layout: post
+title: HTTP/2 新特性浅析
+date: 2015-05-13 11:43:23
+author: sabakugaara
+comments: true
+---
+
+### HTTP/2 源自 SPDY/2
+SPDY 系列协议由谷歌开发，于 2009 年公开。它的设计目标是降低 50% 的页面加载时间。当下很多著名的互联网公司都在自己的网站或 APP 中采用了 SPDY 系列协议(当前最新版本是 SPDY/3.1)，因为它对性能的提升是显而易见的。主流的浏览器(谷歌、火狐、Opera) 也都早已经支持 SPDY，它已经成为了工业标准，HTTP Working-Group 最终决定以 SPDY/2 为基础，开发 HTTP/2。
+
+但是，HTTP/2 跟 SPDY 仍有不同的地方，主要是以下两点：
+
+1. HTTP/2 支持明文 http 传输，而 SPDY 强制使用 https
+2. HTTP/2 消息头的压缩算法采用 [HPACK](http://http2.github.io/http2-spec/compression.html)，而非 SPDY 采用的 [DELEFT](http://zh.wikipedia.org/wiki/DEFLATE)
+
+### HTTP/2 的优势
+相比 HTTP/1.x，HTTP/2 在底层传输做了很大的改动和优化：
+
+1. HTTP/2 采用二进制格式传输数据，而非 HTTP/1.x 的文本格式。二进制格式在协议的解析和优化扩展上带来更多的优势和可能。
+2. HTTP/2 对消息头采用 HPACK 进行压缩传输，能够节省消息头占用的网络的流量。而HTTP/1.x 每次请求，都会携带大量冗余头信息，浪费了很多带宽资源。头压缩能够很好的解决该问题
+3. 多路复用，直白的说就是所有的请求都是通过一个 TCP 连接并发完成。HTTP/1.x 虽然能利用一个连接完成多次请求，但是多个请求之间是有先后顺序的，后面发送的请求必须等待上一个请求返回才能发送响应。这会很容易导致后面的请求被阻塞，而 HTTP/2 做到了真正的并发请求。同时， 流还支持优先级和流量控制
+4. Server Push：服务端能够更快的把资源推送给客户端。例如服务端可以主动把 JS 和 CSS 文件推送给客户端，而不需要客户端解析 HTML 再发送这些请求。当客户端需要的时候，它已经在客户端了。
+
+HTTP/2 主要是 HTTP/1.x 在底层传输机制上的完全重构，HTTP/2 是基本兼容 HTTP/1.x 的语义的(详细兼容性说明请戳[这里](https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-8))。`Content-Type` 仍然是 `Content-Type`，只不过它不再是文本传输了。那么 HTTP/2 的这些新特性又是如何实现的呢？
+
+### HTTP/2 的基石－Frame
+Frame 是 HTTP/2 二进制格式的基础，基本可以把它理解为它 TCP 里面的数据包一样。HTTP/2 之所以能够有如此多的新特性，正是因为底层数据格式的改变。 Frame 的基本格式如下(图中的数字表示所占位数，内容摘自  [http2-draft-17](https://tools.ietf.org/html/draft-ietf-httpbis-http2-17)):
+
+~~~
++-----------------------------------------------+
+|                 Length (24)                   |
++---------------+---------------+---------------+
+|   Type (8)    |   Flags (8)   |
++-+-------------+---------------+-------------------+
+|R|                 Stream Identifier (31)          |
++=+=================================================+
+|                   Frame Payload (0...)        ...
++---------------------------------------------------+
+~~~
+**Length**: Frame Payload 部分的长度，而 Frame Header  的长度是固定的 9 字节（Length + Type + Flags + R + Stream Identifier = 72 bit）。
+
+**Type**: 区分这个 Frame Payload 存储的数据是属于 HTTP Header 或者 HTTP Body，以及 HTTP/2 新定义了一些其他的 Frame Type。例如，这个字段为 0 时，表示 DATA 类型(即 HTTP/1.x 里的 Body 部分数据)
+
+**Flags**: 共 8 位， 每位都起标记作用。每种不同的 Frame Type 都有不同的 Frame Flags。例如发送最后一个 DATA 类型的 Frame 时，就会将 Flags 最后一位设置 1（`flags &= 0x01`），表示 END_STREAM：表示这个 Frame 是流的最后一个数据包。
+
+**R**: 保留位
+
+**Stream Identifier**: 流 ID，当客户端和服务端建立 TCP 链接时，就会先发送一个 Stream ID = 0 的流，用来做些初始化工作。之后客户端和服务端从 1 开始发送请求/响应。
+
+Frame 由 Frame Header 和 Frame Payload 两部分组成。不论是原来的 HTTP Header 还是 HTTP Body，在 HTTP/2 中，都将这些数据存储到 Frame Payload，组成一个个 Frame，再发送响应/请求。通过 Frame Header 中的 Type 区分这个 Frame 的类型。由此可见语义并没有太大变化，而是数据的格式变成二进制的 Frame。二者的转换和关系如下图:
+![HTTP/1.x 数据转换为 HTTP/2](http://as344.b0.upaiyun.com/屏幕快照%202015-05-04%20上午10.17.14.png)
+
+[图片引用自这里](http://chimera.labs.oreilly.com/books/1230000000545/ch12.html#HTTP2_FRAMING_LAYER)
+
+### 为 HTTP/2 头压缩专门设计的 [HPACK](http://http2.github.io/http2-spec/compression.html)
+如果我们约定将常用的请求比如 `GET /index.html` 用一个 1 来表示，`POST /index.html` 用 2 来表示。那么是不是可以节省很多字节？
+
+为 HTTP/2 的专门量身打造的  HAPCK 便是类似这样的思路延伸。它使用一份索引表来定义常用的 HTTP Header。把常用的 HTTP Header 存放在表里。请求的时候便只需要发送在表里的索引位置即可。例如：`:method=GET` 使用索引值 2 表示，`:path=/index.html`使用索引值 5 表示（完整的列表参考：[HPACK Static Table](http://http2.github.io/http2-spec/compression.html#rfc.section.A)）。只要给服务端发送一个 Frame，该 Frame 的 Payload 部分存储 `0x8285`，Frame 的 Type 设置为 Header 类型，便可表示这个 Frame 属于 HTTP header，请求的内容是：
+
+~~~
+GET /index.html
+~~~
+
+为什么是 `0x8285`，而不是`0x0205`？ 这是因为高位设置为 1 表示这个字节是一个完全索引值（key 和 value 都在索引中）。类似的，通过高位的标志位可以区分出这个字节是属于一个完全索引值，还是仅索引了 key，还是 key 和 value 都没有索引。因为索引表的大小的是有限的，它仅保存了一些常用的 HTTP Header，同时每次请求还可以在表的末尾动态追加新的 HTTP Header 缓存。动态部分称之为 Dynamic Table。Static Table 和 Dynamic Table 在一起组合成了索引表：
+
+~~~
+<----------  Index Address Space ---------->
+<-- Static  Table -->  <-- Dynamic Table -->
++---+-----------+---+  +---+-----------+---+
+| 1 |    ...    | s |  |s+1|    ...    |s+k|
++---+-----------+---+  +---+-----------+---+
+                       ^                   |
+                       |                   V
+                 Insertion Point      Dropping Point
+~~~
+
+HPACK 不仅仅通过索引键值对来降低数据量，同时还会将字符串进行霍夫曼编码来压缩字符串大小。
+
+以常用的 `User-Agent` 为例，它在静态表中的索引值是 58，它的值是不存在表中的，因为它的值是多变的。第一次请求的时候它的 key 用 58 表示，表示这是一个 `User-Agent` ，它的值部分会进行霍夫曼编码（如果编码后的字符串变更长了，则不采用霍夫曼编码）。服务端收到请求后，会将这个 `User-Agent` 添加到 Dynamic Table 缓存起来，分配一个新的索引值。客户端下一次请求时，假设上次请求`User-Agent`的在表中的索引位置是 62， 此时只需要发送 `0xBE`（同样的，高位置 1），便可以代表： `User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36`。其过程如下图所示:
+![HPACK 原理图](http://as344.b0.upaiyun.com/屏幕快照%202015-05-12%20下午8.06.21.png)
+
+[图片引用自这里](http://chimera.labs.oreilly.com/books/1230000000545/ch12.html#HPACK)
+
+最终，相同的 Header 只需要发送索引值，新的 Header 会重新加入 Dynamic Table。
+
+### Multipexing 多路复用
+每个 Frame Header 都有一个 Stream ID  就是被用于实现该特性。每次请求/响应使用不同的 Stream ID。就像同一个 TCP 链接上的数据包通过 `IP:PORT`来区分出数据包去往哪里一样。通过 Stream ID 标识，所有的请求和响应都可以欢快的同时跑在一条 TCP 链接上了。 下图是 http 和 spdy(http2 的模型和 spdy 是类似的) 的并发模型对比：
+![http并发模型](http://i.stack.imgur.com/Zp2lf.png])
+
+当流并发时，就会涉及到流的优先级和依赖。优先级高的流会被优先发送。图片请求的优先级要低于 CSS 和 SCRIPT，这个设计可以确保重要的东西可以被优先加载完。
+
+### Server Push
+当服务端需要主动推送某个资源时，便会发送一个 Frame Type 为 PUSH_PROMISE 的 Frame，里面带了 PUSH 需要新建的 Stream ID。意思是告诉客户端：接下来我要用这个 ID 向你发送东西，客户端准备好接着。客户端解析 Frame 时，发现它是一个 PUSH_PROMISE 类型，便会准备接收服务端要推送的流。
+
+**结束语**：本文简化了很多 HTTP/2 协议中的具体细节，只描述了 HTTP/2
+中主要特性实现的基本过程。如果你想实现一个支持 HTTP/2 的服务器，那么你可以移步
+HTTP/2 官网: <http://http2.github.io/> 做更多了解，官网还提供了一份已经实现 HTTP/2
+的项目列表： <https://github.com/http2/http2-spec/wiki/Implementations。> 关于
+HTTP/2 性能如何，可以参考官方小组给出的例子：<https://http2.akamai.com/demo>
+
+### 延伸阅读:
+
+[HTTP/2 gitbook](https://www.gitbook.com/book/ye11ow/http2-explained/details)
+
+[《High Performance Browser Networking》](http://chimera.labs.oreilly.com/books/1230000000545/ch12.html)
