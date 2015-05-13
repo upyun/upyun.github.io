@@ -21,7 +21,7 @@ SPDY 系列协议由谷歌开发，于 2009 年公开。它的设计目标是降
 
 1. HTTP/2 采用二进制格式传输数据，而非 HTTP/1.x 的文本格式。二进制格式在协议的解析和优化扩展上带来更多的优势和可能。
 2. HTTP/2 对消息头采用 HPACK 进行压缩传输，能够节省消息头占用的网络的流量。而 HTTP/1.x 每次请求，都会携带大量冗余头信息，浪费了很多带宽资源。头压缩能够很好的解决该问题。
-3. 多路复用，直白的说就是所有的请求都是通过一个 TCP 连接并发完成。HTTP/1.x 虽然能利用一个连接完成多次请求，但是多个请求之间是有先后顺序的，后面发送的请求必须等待上一个请求返回才能发送响应。这会很容易导致后面的请求被阻塞，而 HTTP/2 做到了真正的并发请求。同时， 流还支持优先级和流量控制。
+3. 多路复用，直白的说就是所有的请求都是通过一个 TCP 连接并发完成。HTTP/1.x 虽然通过 [pipeline](http://en.wikipedia.org/wiki/HTTP_pipelining) 也能并发请求，但是多个请求之间的响应是可以被[阻塞](http://en.wikipedia.org/wiki/Head-of-line_blocking)的，所以 [pipeline](http://en.wikipedia.org/wiki/HTTP_pipelining) 至今也没有被普及应用，而 HTTP/2 做到了真正的并发请求。同时，流还支持优先级和流量控制。
 4. Server Push：服务端能够更快的把资源推送给客户端。例如服务端可以主动把 JS 和 CSS 文件推送给客户端，而不需要客户端解析 HTML 再发送这些请求。当客户端需要的时候，它已经在客户端了。
 
 HTTP/2 主要是 HTTP/1.x 在底层传输机制上的完全重构，HTTP/2 是基本兼容 HTTP/1.x 的语义的(详细兼容性说明请戳[这里](https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-8))。`Content-Type` 仍然是 `Content-Type`，只不过它不再是文本传输了。那么 HTTP/2 的这些新特性又是如何实现的呢？
@@ -62,7 +62,7 @@ Frame 由 Frame Header 和 Frame Payload 两部分组成。不论是原来的 HT
 
 如果我们约定将常用的请求比如 `GET /index.html` 用一个 1 来表示，`POST /index.html` 用 2 来表示。那么是不是可以节省很多字节？
 
-为 HTTP/2 的专门量身打造的  HAPCK 便是类似这样的思路延伸。它使用一份索引表来定义常用的 HTTP Header。把常用的 HTTP Header 存放在表里。请求的时候便只需要发送在表里的索引位置即可。例如 `:method=GET` 使用索引值 2 表示，`:path=/index.html` 使用索引值 5 表示（完整的列表参考：[HPACK Static Table](http://http2.github.io/http2-spec/compression.html#rfc.section.A)）。只要给服务端发送一个 Frame，该 Frame 的 Payload 部分存储 `0x8285`，Frame 的 Type 设置为 Header 类型，便可表示这个 Frame 属于 HTTP Header，请求的内容是：
+为 HTTP/2 的专门量身打造的 HPACK 便是类似这样的思路延伸。它使用一份索引表来定义常用的 HTTP Header。把常用的 HTTP Header 存放在表里。请求的时候便只需要发送在表里的索引位置即可。例如 `:method=GET` 使用索引值 2 表示，`:path=/index.html` 使用索引值 5 表示（完整的列表参考：[HPACK Static Table](http://http2.github.io/http2-spec/compression.html#rfc.section.A)）。只要给服务端发送一个 Frame，该 Frame 的 Payload 部分存储 `0x8285`，Frame 的 Type 设置为 Header 类型，便可表示这个 Frame 属于 HTTP Header，请求的内容是：
 
 ~~~
 GET /index.html
