@@ -8,7 +8,7 @@ comments: true
 
 ### HTTP/2 源自 SPDY/2
 
-SPDY 系列协议由谷歌开发，于 2009 年公开。它的设计目标是降低 50% 的页面加载时间。当下很多著名的互联网公司都在自己的网站或 APP 中采用了 SPDY 系列协议（当前最新版本是 SPDY/3.1），因为它对性能的提升是显而易见的。主流的浏览器（谷歌、火狐、Opera）也都早已经支持 SPDY，它已经成为了工业标准，HTTP Working-Group 最终决定以 SPDY/2 为基础，开发 HTTP/2。
+SPDY 系列协议由谷歌开发，于 2009 年公开。它的设计目标是降低 50% 的页面加载时间。当下很多著名的互联网公司，例如百度、淘宝、[UPYUN](https://www.upyun.com)都在自己的网站或 APP 中采用了 SPDY 系列协议（当前最新版本是 SPDY/3.1），因为它对性能的提升是显而易见的。主流的浏览器（谷歌、火狐、Opera）也都早已经支持 SPDY，它已经成为了工业标准，HTTP Working-Group 最终决定以 SPDY/2 为基础，开发 HTTP/2。
 
 但是，HTTP/2 跟 SPDY 仍有不同的地方，主要是以下两点：
 
@@ -108,7 +108,9 @@ HPACK 不仅仅通过索引键值对来降低数据量，同时还会将字符�
 
 如果你想实现一个支持 HTTP/2 的服务器，那么你可以移步 [HTTP/2 官网](http://http2.github.io/) 做更多了解，它还提供了一份已经实现 HTTP/2 的项目列表：<https://github.com/http2/http2-spec/wiki/Implementations> 。
 
-另外，关于 HTTP/2 性能如何，可以参考官方小组给出的例子：<https://http2.akamai.com/demo>
+另外，关于 HTTP/2 性能如何，可以参考官方小组给出的例子：<https://http2.akamai.com/demo>。
+
+[UPYUN](https://www.upyun.com) 在不久的将来也会加入对 HTTP/2 协议支持，为用户提供更好更快的云加速服务。
 
 ### 延伸阅读:
 
