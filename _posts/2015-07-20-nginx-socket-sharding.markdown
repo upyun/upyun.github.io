@@ -2,7 +2,7 @@
 layout: post
 title: NGINX 1.9.1 新特性：套接字端口共享
 date: 2015-07-20 20:13:00
-author: hdu.yang
+author: hy05190134
 comments: true
 ---
 
