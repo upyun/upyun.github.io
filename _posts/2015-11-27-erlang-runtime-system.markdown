@@ -1,14 +1,13 @@
 ---
 layout: post
-title: Erlang 运行时系统（1）
-date: 2015-11-27 17:16:00
-author: szy
+title: Erlang Runtime System
+author: timebug
 comments: true
 ---
 
->以下内容节译自 <i>Characterizing the Scalability of Erlang VM on Many-core Processors</i>
->翻译章节：第三章 第 1 节
->原文地址 http://kth.diva-portal.org/smash/get/diva2:392243/FULLTEXT01
+>以下内容节译自 <i>Characterizing the Scalability of Erlang VM on Many-core Processors</i><br />
+>翻译章节：第三章 第 1 节<br />
+>原文地址 http://kth.diva-portal.org/smash/get/diva2:392243/FULLTEXT01<br />
 
 &emsp;&emsp;现在的 BEAM 是 Erlang 标准虚拟机，源自 Turbo Erlang 。它是一种基于寄存器的抽象机。第一次实验性的实现是 1998 年 master degree project 的结果 —— SMP(parallel) VM 。从 2006 年起，SMP VM 被囊括进官方发行版中。
 &emsp;&emsp;SMP Erlang 虚拟机是一个多线程程序。在 Linux 上，它使用 POSIX 线程库。多个线程在一个系统进程中共享一个内存空间。一个 Erlang 调度器是一个用于调度和执行 Erlang 进程和端口的线程。因此它既是一个调度器也是一个 worker 。进程和端口的调度和执行是相互交错的。每一个调度器有一个分散的运行队列存储着就绪的进程和与其相关的端口。在多核处理器上，Erlang 虚拟机通常被配置为每核一个调度器或每个硬件线程一个调度器，如果硬件多线程受支持。
@@ -16,7 +15,7 @@ comments: true
 ##3.1 Erlang 进程结构
 &emsp;&emsp;每个进程包括一个进程控制块(PCB)，一个栈和一个私有堆。一个 PCB 是一个包含了诸如进程 ID、堆和栈的位置、参数寄存器和程序计数器的数据结构。此外，或许在每次垃圾回收之后会有些小的堆碎片被合并进主堆中。堆碎片会在堆中没有足够空闲内存或垃圾回收不能获得更多空闲内存时被使用。比如，当一个进程正在发送消息到另一个进程，如果目标进程没有足够的堆空间容纳这个消息，在 SMP 虚拟机中发送进程不会为目标进程调用垃圾回收（译注：可能是想表达目标进程会用堆碎片存储这个消息）。此外，大于 64 字节的二进制型会被存储在所有进程共享的通用堆中。这和 ETS 表一样。图 3.1 阐明了这些主要内存区域（还有一些其他内存区域未列出，如原子表）。
 
-<center>![OnePiece Sunny]({{ site.remoteurl }}/assets/erl.3.1.jpg)</center>
+![OnePiece Sunny]({{ site.remoteurl }}/assets/erl.3.1.jpg)
 <center>图 3.1 堆结构</center>
 
 &emsp;&emsp;如图 3.1，Erlang 进程的栈和堆位于同一块被一起分配和管理的连续内存。在操作系统的进程或线程来看，这块区域在自己的堆中，这意味着 Erlang 进程的堆和栈实际存储在虚拟机的堆中。在这块内存中，堆起于低地址并向上增长，栈则与之相反。对堆顶和栈顶的检查可以发现堆溢出。
@@ -24,7 +23,7 @@ comments: true
 &emsp;&emsp;堆被用于存储如元组、列表或大整数等复合数据结构，栈则被用于存储简单的数据和指向复合数据的引用（或指针）。没有从堆指向栈的指针使垃圾回收变得不那么困难。图 3.2 展示了一个列表和元组是如何存储在栈和堆中的例子（译注：从图 3.2 中可以看出，列表的列表的引用似乎不会出现在栈中）。
 
 
-<center>![OnePiece Sunny]({{ site.remoteurl }}/assets/erl.3.1.jpg)</center>
+![OnePiece Sunny]({{ site.remoteurl }}/assets/erl.3.2.png)
 <center>图 3.2 列表和元组的布局</center>
 
 &emsp;&emsp;Erlang 是一门动态类型语言。一个变量在运行时与一种类型关联。变量的数据类型不能在编译期决定。数据的内部实现中用多个标签指示类型。在一个字（在 32 位机中长度为 32 位，64 位机中长度为 64 位）中至少有 2 或 6 个有效位用做一个标签。对于一个元组，栈上的值包含一个指向堆上对象的指针，这个对象存储在连续的内存区域。这块内存可以是任意合法 Erlang 类型，甚至是元组或列表，这其中也包括一个用于指示元组长度的头。一个元组是一个数组，它的元素可以被快速定位。
