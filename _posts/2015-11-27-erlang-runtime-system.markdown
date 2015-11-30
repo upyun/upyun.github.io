@@ -1,19 +1,17 @@
 ---
 layout: post
-title: Erlang 运行时系统详解
+title: Erlang 运行时系统详解 —— Erlang 进程结构
 author: bigwhite37
 comments: true
 ---
 
 > 原文地址： [Characterizing the Scalability of Erlang VM on Many-core Processors](http://kth.diva-portal.org/smash/get/diva2:392243/FULLTEXT01) (第三章 第 1 节)
 
-现在的 BEAM 是源自 Turbo Erlang 的 Erlang 标准虚拟机 。它是一种基于寄存器的抽象机。第一次实验性的实现是 1998 年 master degree project 的结果 —— SMP(parallel) VM。从 2006 年起，SMP VM 被囊括进官方发行版中。
+现在的 BEAM（Binary Erlang Abstract Machine）是源自 Turbo Erlang 的 Erlang 标准虚拟机。它是一种基于寄存器的抽象机。第一次实验性的实现是 1998 年 master degree project 的结果 —— SMP(parallel) VM。从 2006 年起，SMP VM 被囊括进官方发行版中。
 
 SMP Erlang 虚拟机是一个多线程程序。在 Linux 上，它使用 POSIX 线程库。多个线程在一个系统进程中共享内存。Erlang 调度器是一个用于调度和执行 Erlang 进程和端口的线程。因此它既是一个调度器也是一个 worker。进程和端口的调度与执行是相互交错的。每一个调度器有一个存储着就绪的进程和与其相关端口的分散的运行队列。在多核处理器上，Erlang 虚拟机通常被配置为每核一个调度器或每个硬件线程一个调度器，如果硬件多线程受支持的话。
 
 Erlang 运行时提供的许多特性常常和操作系统相关，比如，内存管理、进程调度和网络。在本章其余部分，我们会介绍和分析现在 SMP 虚拟机（之前提到的 R13B）的不同部分，这些和在多核处理器上的可伸缩性息息相关，包括进程结构、消息传递、调度、同步性和内存管理。
-
-## 3.1 Erlang 进程结构
 
 每个进程包括一个进程控制块(PCB)，一个栈和一个私有堆。一个 PCB 是一个包含了诸如进程 ID、堆和栈的位置、参数寄存器和程序计数器的数据结构。此外，或许在每次垃圾回收之后会有些小的堆碎片被合并进主堆中。堆碎片会在堆中没有足够空闲内存或垃圾回收不能获得更多空闲内存时被使用。比如，当一个进程正在发送消息到另一个进程，如果目标进程没有足够的堆空间容纳这个消息，在 SMP 虚拟机中发送进程不会为目标进程调用垃圾回收（译注：可能是想表达目标进程会用堆碎片存储这个消息）。此外，大于 64 字节的二进制型会被存储在所有进程共享的通用堆中。这和 ETS 表一样。图 3.1 阐明了这些主要的内存区域（还有一些其他内存区域未列出，如原子表）。
 
