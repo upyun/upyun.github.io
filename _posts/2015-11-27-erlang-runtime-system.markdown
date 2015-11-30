@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Erlang 运行时系统详解 —— Erlang 进程结构
+title: Erlang 运行时系统 —— 进程结构详解
 author: bigwhite37
 comments: true
 ---
