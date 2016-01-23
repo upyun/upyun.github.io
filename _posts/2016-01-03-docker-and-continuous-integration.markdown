@@ -3,6 +3,7 @@ layout: post
 title:  "Docker 与 UPYUN 集成测试环境"
 date:   2016-01-03 20:33:00
 author: polym
+comments: true
 ---
 
 > 测试是软件开发过程中的重中之重，一个没有测试的项目，就像摸着石头过河，格外艰辛。而一个统一规范的集成测试环境，更是一个公司内部必不可少的组件。
