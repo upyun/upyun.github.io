@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "如何在Go语言中使用Redis连接池"
+title:  "如何在 Go 语言中使用 Redis 连接池"
 date:   2016-01-28 20:00:00
 author: Akagi201
 comments: true
