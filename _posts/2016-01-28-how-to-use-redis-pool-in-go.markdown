@@ -8,11 +8,13 @@ comments: true
 
 ## TOC
 
-- [关于连接池](#关于连接池)
-- [使用连接池遇到的坑](#使用连接池遇到的坑)
-- [使用连接池的正确姿势](#使用连接池的正确姿势)
-- [最后的解决方案](#最后的解决方案)
-- [References](#references)
+- [关于连接池](#no1)
+- [使用连接池遇到的坑](#no2)
+- [使用连接池的正确姿势](#no3)
+- [最后的解决方案](#no4)
+- [References](#no5)
+
+<a name="no1"/>
 
 ## 关于连接池
 
@@ -26,6 +28,8 @@ comments: true
 * 服务器工作不稳定，QPS忽高忽低
 
 要想解决这些问题，我们就要用到连接池了．连接池的思路很简单，在初始化时，创建一定数量的连接，先把所有长连接存起来，然后，谁需要使用，从这里取走，干完活立马放回来． 如果请求数超出连接池容量，那么就排队等待或者直接丢弃掉．
+
+<a name="no2"/>
 
 ## 使用连接池遇到的坑
 
@@ -41,13 +45,15 @@ comments: true
 
 然后我看了一下 `radix.v2` 的 `pool` 包的源码，发现这个库本身并没有检测坏的连接，并替换为新的连接的机制．也就是说我每次从连接池里面 `Get` 的连接有可能是坏的连接．所以，我当时临时的解决方案是通过增加失败后自动重试来解决了．不过，这样的处理方案，连接池的作用好像就没有了．技术债能早点还的还是早点还上．
 
+<a name="no3"/>
+
 ## 使用连接池的正确姿势
 
 想到我们的 `nginx_lua` 项目里面也用了大量使用 `redis` 连接池，他们怎么没有遇到这个问题呢．只能去看看源码了．
 
 经过抽象分离， `nginx_lua` 里面使用 `redis` 连接池部分的代码大致是这样的
 
-```
+~~~
 server {
     location /pool {
         content_by_lua_block {
@@ -69,11 +75,11 @@ server {
         }
     }
 }
-```
+~~~
 
 发现有个 `set_keepalive` 的方法，查了一下[官方文档](https://github.com/openresty/lua-resty-redis#set_keepalive)，方法的原型是 `syntax: ok, err = red:set_keepalive(max_idle_timeout, pool_size)` 貌似 `max_idle_timeout` 这个参数，就是我们所缺少的东西，然后进一步跟踪源码，看看里面是怎么保证连接有效的．
 
-```
+~~~
 function _M.set_keepalive(self, ...)
     local sock = self.sock
     if not sock then
@@ -86,11 +92,13 @@ function _M.set_keepalive(self, ...)
 
     return sock:setkeepalive(...)
 end
-```
+~~~
 
 至此，已经清楚了，使用了 `tcp` 的 `keepalive` 心跳机制．
 
 于是，通过与 `radix.v2` 的作者一些[讨论](https://github.com/mediocregopher/radix.v2/issues/21)，选择自己在 `redis` 这层使用心跳机制，来解决这个问题，
+
+<a name="no4"/>
 
 ## 最后的解决方案
 
@@ -98,7 +106,7 @@ end
 
 连接池初始化部分代码如下：
 
-```
+~~~
 p, err := pool.New("tcp", u.Host, concurrency)
 errHndlr(err)
 go func() {
@@ -107,26 +115,26 @@ go func() {
         time.Sleep(idelTime * time.Second)
     }
 }()
-```
+~~~
 
 使用 `redis` 传输数据部分代码如下：
 
-```
+~~~
 func redisDo(p *pool.Pool, cmd string, args ...interface{}) (reply *redis.Resp, err error) {
 	reply = p.Cmd(cmd, args...)
 	if err = reply.Err; err != nil {
 		if err != io.EOF {
-			Fatal.Println("BOCAR redis", cmd, args, "err is", err)
+			Fatal.Println("redis", cmd, args, "err is", err)
 		}
 	}
 
 	return
 }
-```
+~~~
 
 其中，`radix.v2` 连接池内部进行了连接池内连接的获取和放回，代码如下：
 
-```
+~~~
 // Cmd automatically gets one client from the pool, executes the given command
 // (returning its result), and puts the client back in the pool
 func (p *Pool) Cmd(cmd string, args ...interface{}) *redis.Resp {
@@ -138,9 +146,11 @@ func (p *Pool) Cmd(cmd string, args ...interface{}) *redis.Resp {
 
 	return c.Cmd(cmd, args...)
 }
-```
+~~~
 
 这样，我们就有了 `keepalive` 的机制，不会出现 `timeout` 的连接了，从 `redis` 连接池里面取出的连接都是可用的连接了．看似简单的代码，却完美的解决了连接池里面超时连接的问题．同时，就算 `redis-server` 重启等情况，也能保证连接自动重连．
+
+<a name="no5"/>
 
 ## References
 * [Connection pool](https://en.wikipedia.org/wiki/Connection_pool)
