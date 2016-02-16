@@ -6,6 +6,8 @@ author: Akagi201
 comments: true
 ---
 
+![redis-go]({{ site.remoteurl }}/assets/redis-go.png)
+
 ## TOC
 
 - [关于连接池](#关于连接池)
