@@ -35,25 +35,25 @@ comments: true
 
 ## 使用连接池遇到的坑
 
-最近在一个项目中，需要实现一个简单的 `web server` 提供 `Redis` 的 `HTTP interface`，提供 `JSON` 形式的返回结果。考虑用 `Go` 来实现。
+最近在一个项目中，需要实现一个简单的 Web Server 提供 Redis 的 HTTP interface，提供 JSON 形式的返回结果。考虑用 Go 来实现。
 
-首先，去看一下 `Redis` 官方推荐的 [Go Redis driver](http://redis.io/clients#go)。官方 Star 的项目有两个：`Radix.v2` 和 `Redigo`。经过简单的比较后，选择了更加轻量级和实现更加优雅的 [Radix.v2](https://github.com/mediocregopher/radix.v2)。
+首先，去看一下 Redis 官方推荐的 [Go Redis driver](http://redis.io/clients#go)。官方 Star 的项目有两个：Radix.v2 和 Redigo。经过简单的比较后，选择了更加轻量级和实现更加优雅的 [Radix.v2](https://github.com/mediocregopher/radix.v2)。
 
-`Radix.v2` 包是根据功能划分成一个个的 `sub-package`，每一个 `sub-package` 在一个独立的子目录中，结构非常清晰。我的项目中会用到的 `sub-package` 有 `redis` 和 `pool`。
+Radix.v2 包是根据功能划分成一个个的 sub package，每一个 sub package 在一个独立的子目录中，结构非常清晰。我的项目中会用到的 sub package 有 redis 和 pool。
 
-由于我想让这种被 fork 的进程最好简单点，做的事情单一一些，所以，在没有深入去看 `Radix.v2` 的 `pool` 的实现之前，我选择了自己实现一个 `Redis pool`。这里，就不贴代码了。(后来发现自己实现的 `Redis pool` 与 `radix.v2` 实现的 `Redis pool` 的原理是一样的，都是基于 `channel` 实现的, 遇到的问题也是一样的。)
+由于我想让这种被 fork 的进程最好简单点，做的事情单一一些，所以，在没有深入去看 Radix.v2 的 pool 的实现之前，我选择了自己实现一个 Redis pool。(这里，就不贴代码了。后来发现自己实现的 Redis pool 与 Radix.v2 实现的 Redis pool 的原理是一样的，都是基于 channel 实现的, 遇到的问题也是一样的。)
 
-不过在测试过程中，发现了一个诡异的问题。在请求过程中经常会报 `EOF` 错误。而且是概率性出现，一会有问题，一会又好了。通过反复的测试，发现 bug 是有规律的，当程序空闲一会后，再进行连续请求，会发生3次失败，然后之后的请求都能成功，而我的连接池大小设置的是3。再进一步分析，程序空闲300秒后，再请求就会失败，发现我的`redis-server` 配置了`timeout 300`，至此，问题就清楚了。是连接超时 `redis-server` 主动断开了连接。客户端这边从一个超时的连接请求就会得到 `EOF` 错误。
+不过在测试过程中，发现了一个诡异的问题。在请求过程中经常会报 EOF 错误。而且是概率性出现，一会有问题，一会又好了。通过反复的测试，发现 bug 是有规律的，当程序空闲一会后，再进行连续请求，会发生3次失败，然后之后的请求都能成功，而我的连接池大小设置的是3。再进一步分析，程序空闲300秒后，再请求就会失败，发现我的 Redis server 配置了 `timeout 300`，至此，问题就清楚了。是连接超时 Redis server 主动断开了连接。客户端这边从一个超时的连接请求就会得到 EOF 错误。
 
-然后我看了一下 `radix.v2` 的 `pool` 包的源码，发现这个库本身并没有检测坏的连接，并替换为新的连接的机制。也就是说我每次从连接池里面 `Get` 的连接有可能是坏的连接。所以，我当时临时的解决方案是通过增加失败后自动重试来解决了。不过，这样的处理方案，连接池的作用好像就没有了。技术债能早点还的还是早点还上。
+然后我看了一下 Radix.v2 的 pool 包的源码，发现这个库本身并没有检测坏的连接，并替换为新的连接的机制。也就是说我每次从连接池里面 Get 的连接有可能是坏的连接。所以，我当时临时的解决方案是通过增加失败后自动重试来解决了。不过，这样的处理方案，连接池的作用好像就没有了。技术债能早点还的还是早点还上。
 
 <a name="使用连接池的正确姿势"/>
 
 ## 使用连接池的正确姿势
 
-想到我们的 `ngx_lua` 项目里面也大量使用 `redis` 连接池，他们怎么没有遇到这个问题呢。只能去看看源码了。
+想到我们的 ngx_lua 项目里面也大量使用 redis 连接池，他们怎么没有遇到这个问题呢。只能去看看源码了。
 
-经过抽象分离， `ngx_lua` 里面使用 `redis` 连接池部分的代码大致是这样的
+经过抽象分离， ngx_lua 里面使用 redis 连接池部分的代码大致是这样的
 
 ~~~
 server {
@@ -96,15 +96,15 @@ function _M.set_keepalive(self, ...)
 end
 ~~~
 
-至此，已经清楚了，使用了 `tcp` 的 `keepalive` 心跳机制。
+至此，已经清楚了，使用了 tcp 的 keepalive 心跳机制。
 
-于是，通过与 `radix.v2` 的作者一些[讨论](https://github.com/mediocregopher/radix.v2/issues/21)，选择自己在 `redis` 这层使用心跳机制，来解决这个问题。
+于是，通过与 Radix.v2 的作者一些[讨论](https://github.com/mediocregopher/radix.v2/issues/21)，选择自己在 redis 这层使用心跳机制，来解决这个问题。
 
 <a name="最后的解决方案"/>
 
 ## 最后的解决方案
 
-在创建连接池之后，起一个 `goroutine`，每隔一段 `idleTime` 发送一个 `PING` 到 `redis-server`。其中，`idleTime` 略小于 `redis-server` 的 `timeout` 配置。
+在创建连接池之后，起一个 goroutine，每隔一段 `idleTime` 发送一个 `PING` 到 Redis server。其中，`idleTime` 略小于 Redis server 的 `timeout` 配置。
 
 连接池初始化部分代码如下：
 
@@ -119,7 +119,7 @@ go func() {
 }()
 ~~~
 
-使用 `redis` 传输数据部分代码如下：
+使用 redis 传输数据部分代码如下：
 
 ~~~
 func redisDo(p *pool.Pool, cmd string, args ...interface{}) (reply *redis.Resp, err error) {
@@ -134,7 +134,7 @@ func redisDo(p *pool.Pool, cmd string, args ...interface{}) (reply *redis.Resp, 
 }
 ~~~
 
-其中，`radix.v2` 连接池内部进行了连接池内连接的获取和放回，代码如下：
+其中，Radix.v2 连接池内部进行了连接池内连接的获取和放回，代码如下：
 
 ~~~
 // Cmd automatically gets one client from the pool, executes the given command
@@ -150,7 +150,7 @@ func (p *Pool) Cmd(cmd string, args ...interface{}) *redis.Resp {
 }
 ~~~
 
-这样，我们就有了 `keepalive` 的机制，不会出现 `timeout` 的连接了，从 `redis` 连接池里面取出的连接都是可用的连接了。看似简单的代码，却完美的解决了连接池里面超时连接的问题。同时，就算 `redis-server` 重启等情况，也能保证连接自动重连。
+这样，我们就有了 keepalive 的机制，不会出现 timeout 的连接了，从 redis 连接池里面取出的连接都是可用的连接了。看似简单的代码，却完美的解决了连接池里面超时连接的问题。同时，就算 Redis server 重启等情况，也能保证连接自动重连。
 
 <a name="References"/>
 
