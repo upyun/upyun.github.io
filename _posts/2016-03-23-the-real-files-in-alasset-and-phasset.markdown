@@ -11,7 +11,7 @@ comments: true
 
 ## 1.关键词
 
-__ALAsset, PHAsset, Photos library, UIImagePickerController, PHLivePhoto, LivePhoto__
+__ALAsset; PHAsset; Photos library; UIImagePickerController; PHLivePhoto; LivePhoto.__
 
 ALAsset 或者 PHAsset 代表着由 iPhone 相册 app 管理的视频和图片对象。ALAsset 在 iOS9.0 版本已经被弃用，PHAsset 是 ALAsset 的替代。和手机相册（Photos）进行的交互，比如选择图片上传，都会涉及到 ALAsset/PHAsset 相关的概念。
 
@@ -24,13 +24,13 @@ ALAsset 或者 PHAsset 代表着由 iPhone 相册 app 管理的视频和图片�
 
 ALAsset/PHAsset 并不是真正的文件对象，他们仅仅包含真正文件的基本信息如：文件路径，文件元数据。甚至一个 Asset 会包含多个文件 (多个 ALAssetRepresentation 或者 PHAssetResource), 如 _LivePhoto_ 包含一个 jpeg 图片和一个 mov 视频两个文件。     
 
-LivePhoto 是在 iPhone6s 及更新的设备上用相机拍摄的一张照片，其特点是包含了照片拍摄时刻之前和之后几秒钟的视频（拍摄 LivePhoto 需要 iPhone6s 及更新的设备；LivePhoto 的操作和播放只需要安装了 iOS9.1 及以上系统版本的 iPhone 即可），LivePhoto 不是一种新文件格式，LivePhoto 只是一种特别的 PHAsset。
+LivePhoto 是在 iPhone6s 及更新的设备上用相机拍摄的一张照片，其特点是包含了照片拍摄时刻之前和之后几秒钟的视频（拍摄 LivePhoto 需要 iPhone6s 及更新的设备；LivePhoto 的操作和播放只需要安装了 iOS9.1 及以上系统版本的 iPhone 即可），LivePhoto 不是一种新文件格式，只是一种特别的 PHAsset。
 
-ALAsset/ PHAsset 对象较为复杂，所以理清 ALAsset/PHAsset 和真正文件的关系，才能使后续的视频和图片文件的操作，比如上传CDN，变的好理解。
+ALAsset/PHAsset 对象较为复杂，所以理清 ALAsset/PHAsset 和真正文件的关系，才能使后续的视频和图片文件的操作，比如上传 CDN，变得好理解。
 
 __下面以一个常见的使用场景进行 PHAsset 操作过程的描述：__
 
-_从相册选择图片或视频 — 将图片或视频上传CDN — 下载图片或视频 — 将图片或视频保存到相册_ 
+_从相册选择图片或视频 — 将图片或视频上传 CDN — 下载图片或视频 — 将图片或视频保存到相册_ 
 
 (ALAsset 已在 iOS9.0 过期，所以主要以 PHAsset 做为例子）
 
@@ -43,7 +43,7 @@ UIImagePickerController 是从相册选取图片 Asset 和视频 Asset 的选择
 ```
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info;
 ```
-从上面的接口看到，选择回来的仅仅是 info 信息，PHAsset 需要利用 info 字典的信息进一步获得。info字典例子：
+从上面的接口看到，选择回来的仅仅是 info 信息，PHAsset 需要利用 info 字典的信息进一步获得。info 字典例子：
 
 ```
 //选择的是图片
@@ -60,7 +60,7 @@ info{
     UIImagePickerControllerReferenceURL = "assets-library://asset/asset.MOV?id=546/../B&ext=MOV";
 }
 
-//选择的是LivePhoto
+//选择的是 LivePhoto
 info{
     UIImagePickerControllerLivePhoto = "<PHLivePhoto: 0x126e3a170>";
     UIImagePickerControllerMediaType = "com.apple.live-photo";
@@ -69,7 +69,7 @@ info{
 }
 ```
 
-从 info 字典的例子可以看到，选择图片，视频和 LivePhoto 三种的回调信息是有区别的，每个结果包含的字段也不相同，但是都有个 __UIImagePickerControllerReferenceURL__ 键值，顾名思义，__assets-library:__ 这条 URL 便是指向我们所选择的 PHAsset 对象的 URL。（LivePhoto 也是属于一种较为特殊的图片 Asset）   
+从 info 字典的例子可以看到，选择图片，视频和 LivePhoto 三种的回调信息是有区别的，每个结果包含的字段也不相同，但是都有个 UIImagePickerControllerReferenceURL 键值，顾名思义，assets-library 这条 URL 便是指向我们所选择的 PHAsset 对象的 URL。   
 
 __Fetching Assets__: 从 assets-library URL 获取我们需要的图片和视频 Asset
 
@@ -121,11 +121,11 @@ __Reading Asset Metadata__: PHAsset 对象仅仅包含文件的基本数据 [(As
 }
 ```
 
-在上面的代码中我们通过判断```asset.mediaType == PHAssetMediaTypeImage ```来区分 PHAsset 是否是一个图片类型的 Asset。值得注意的是 LivePhoto Asset 的 mediaType 属性值也等于 PHAssetMediaTypeImage，所以提取 LivePhoto 里面的图片也可以直接调用此方法。
+在上面的代码中我们通过判断 ```asset.mediaType == PHAssetMediaTypeImage ``` 来区分 PHAsset 是否是一个图片类型的 Asset。值得注意的是 LivePhoto Asset 的 mediaType 属性值也等于 PHAssetMediaTypeImage，所以提取 LivePhoto 里面的图片也可以直接调用此方法。
 
 既然 mediaType 属性一样，怎么才能具体区分一个 PHAsset 是图片 Asset 还是 LivePhoto 呢，答案是通过 PHAsset 的 mediaSubtypes 属性。
 
-PHAsset 的属性和二级属性：
+PHAsset 的媒体属性 （mediaType）和二级媒体属性（mediaSubtypes）：
 
 ```
 typedef NS_ENUM(NSInteger, PHAssetMediaType) {
@@ -151,7 +151,7 @@ typedef NS_OPTIONS(NSUInteger, PHAssetMediaSubtype) {
 } NS_AVAILABLE_IOS(8_0);
 ```
 
-可以看到 PHAsset 一级属性可以区分图片，视频和音频。PhotoLive 属于 Photo 类型下面的一个 subtypes。
+可以看到 PHAsset mediaType 可以区分图片，视频和音频。PhotoLive 属于 Photo 类型下面的一个 subtypes。
 
 从 PHAsset 获取视频：
 
@@ -212,7 +212,7 @@ typedef void(^Result)(NSData *fileData, NSString *fileName);
 值得注意的是：上述两个接口，最后回调结果是 fileData。对于图片 PHAsset，因为图片文件不会很大，所以直接拿到图片 data 是可以的。但是对于视频 PHAsset，视频文件较大会占用大量内存空间。 我们可以通过修改上面的接口，用视频的 filePath 来替代 fileData，以解决处理大文件视频情况下的内存占用问题。
 
 
-修改接口，获取  videoFilePath，注意：使用完成，最好手动删除这个临时文件
+修改接口，获取 videoFilePath，注意：使用完成，最好手动删除这个临时文件
 
 ```
 typedef void(^ResultPath)(NSString *filePath, NSString *fileName);
@@ -268,7 +268,7 @@ void UIImageWriteToSavedPhotosAlbum(UIImage *image, id completionTarget, SEL com
 void UISaveVideoAtPathToSavedPhotosAlbum(NSString *videoPath, id completionTarget, SEL completionSelector, void * contextInfo);
 ```
 
-那么如何保存 LivePhoto，对于支持 LivePhoto 的手机用户可能需要将 LivePhoto 保存到手机相册。但是事实上 LivePhoto 不能作为一个整体文件存在于内存硬盘或者服务器。但是可以将一个视频文件和图片文件一起作为 LivePhoto 保存到相册：
+那么如何保存 LivePhoto，对于支持 LivePhoto 的手机用户可能需要将 LivePhoto 保存到手机相册。但是事实上 LivePhoto 不能作为一个整体文件存在于内存硬盘或者服务器。但是可以将一个视频文件和图片文件一起作为 LivePhoto Asset 保存到相册：
 
 保存 LivePhoto 代码示例：
 
@@ -300,4 +300,4 @@ void UISaveVideoAtPathToSavedPhotosAlbum(NSString *videoPath, id completionTarge
 ## 6.最后
 
 ALAsset/PHAsset 是属于 iPhone 相册相关操作范围内的概念，ALAsset/PHAsset 并不是文件，不能直接上传 CDN。上传 CDN 需要的真正图片视频文件可以用上文提供的方法从 PHAsset 提取出来。
-LivePhoto 属于一种特殊的 PHAsset，可以从 LivePhoto 里面分别提取图片和视频文件之后，再上传CDN。
+LivePhoto 属于一种特殊的 PHAsset，可以从 LivePhoto 里面分别提取图片和视频文件之后，再上传 CDN。
