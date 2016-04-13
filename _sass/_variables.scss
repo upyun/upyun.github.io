@@ -1,0 +1,37 @@
+//=================================
+//           Variables
+//=================================
+
+$primary-color: #3197c8 !default;
+$black-color: #000 !default;
+$silver-color: #eee !default;
+$white-color: #fff !default;
+$grey-color: #828282 !default;
+$grey-color-light: lighten($grey-color, 40%);
+$grey-color-dark:  darken($grey-color, 25%);
+
+$bg-color: #fbfefe !default;
+$txt-color: #333 !default;
+
+$font-family-base: "Helvetica Neue",Helvetica,"PingFang SC","Microsoft Yahei","WenQuanYi Micro Hei",Arial,Verdana,sans-serif;
+$font-size-base: 15px !default;
+$line-height-base: 1.8 !default;
+$font-weight-base: 400 !default;
+$font-weight-bold: 700 !default;
+
+$code-bg-color: #fdf6e3 !default;
+$inline-code-bg-color: rgba(0,0,0,.04) !default;
+
+$quote-color: lighten($primary-color, 10%) !default;
+
+$link-color: $primary-color !default;
+$link-hover-color: darken($link-color, 10%) !default;
+
+$default-feature: min-width !default;
+$container-width: 50em !default;
+$gutter-width: 30px !default;
+$gutter-padding: ($gutter-width / 2) !default;
+
+$screen-phone   : 30em !default;
+$screen-tablet  : 37em !default;
+$screen-desktop : 56em !default;

@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html xmlns:wb="http://open.weibo.com/wb">
 
-  {% include head.html %}
+  <head>
+    {% include head.html %}
+  </head>
 
-  <body>
+  <body class="{% if page.bodyclass %}{{ page.bodyclass }}{% endif %}">
 
-    {% include header.html %}
+    <main class="container">
 
-    <div class="page-content">
-      <div class="wrapper">
+      {% include header.html %}
+
+      <section class="main-content">
         {{ content }}
-      </div>
-    </div>
+      </section>
 
-    {% include footer.html %}
+      {% include footer.html %}
 
+    </main>
   </body>
-
 </html>

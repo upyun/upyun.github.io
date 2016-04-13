@@ -1,39 +1,61 @@
-/**
- * Site header
- */
-.site-header {
-    border-top: 5px solid $brand-color;
-    border-bottom: 1px solid $grey-color-light;
-    min-height: 56px;
+//=================================
+//          Layout Styles
+//=================================
 
-    // Positioning context for the mobile navigation icon
-    position: relative;
+/**
+ * Container
+ */
+
+.container {
+  max-width: $container-width;
+
+  padding: {
+    left: $gutter-padding;
+    right: $gutter-padding;
+  };
+
+  margin: {
+    left: auto;
+    right: auto;
+  };
+}
+
+/**
+ * Site Header
+ */
+
+.site-header {
+  position: relative;
+  padding: .8em 0;
+  border-bottom: 1px solid #eee;
+
+  h1 {
+    margin-top: 1em;
+
+    small {
+      display: block;
+      color: #aaa;
+    }
+  }
 }
 
 .site-title {
-    font-size: 26px;
-    line-height: 56px;
-    letter-spacing: -1px;
-    margin-bottom: 0;
-    float: left;
-
-    &,
-    &:visited {
-        color: $brand-color;
-    }
+  float: left;
+  max-width: 80%;
+  font-size: 1.2em;
+  letter-spacing: -0.5px;
 }
 
 .site-nav {
     float: right;
-    line-height: 56px;
+    line-height: 2.2em;
 
     .menu-icon {
         display: none;
     }
 
     .page-link {
-        color: $text-color;
-        line-height: $base-line-height;
+        line-height: $line-height-base;
 
         // Gaps between nav items, but not on the first one
         &:not(:first-child) {
@@ -41,11 +63,11 @@
         }
     }
 
-    @include media-query($on-palm) {
+    @include media-query($screen-phone) {
         position: absolute;
-        top: 9px;
-        right: 30px;
-        background-color: $background-color;
+        top: 12px;
+        right: 0;
+        background-color: $bg-color;
         border: 1px solid $grey-color-light;
         border-radius: 5px;
         text-align: right;
@@ -54,7 +76,7 @@
             display: block;
             float: right;
             width: 36px;
-            height: 26px;
+            height: 36px;
             line-height: 0;
             padding-top: 10px;
             text-align: center;
@@ -86,151 +108,89 @@
     }
 }
 
-
+.main-content {
+  margin: 3em 0 0;
+}
 
 /**
- * Site footer
+ * .posts
  */
-.site-footer {
-    border-top: 1px solid $grey-color-light;
-    padding: $spacing-unit 0;
-}
 
-.footer-heading {
-    font-size: 18px;
-    margin-bottom: $spacing-unit / 2;
-}
+.post {
+  .post-header {
+    margin-bottom: 2em;
+  }
 
-.contact-list,
-.social-media-list {
-    list-style: none;
-    margin-left: 0;
-}
+  .post-title {
+    margin-bottom: .6em;
+  }
 
-.footer-col-wrapper {
-    font-size: 15px;
-    color: $grey-color;
-    margin-left: -$spacing-unit / 2;
-    @extend %clearfix;
-}
-
-.footer-col {
-    float: left;
-    margin-bottom: $spacing-unit / 2;
-    padding-left: $spacing-unit / 2;
-}
-
-.footer-col-1 {
-    width: -webkit-calc(35% - (#{$spacing-unit} / 2));
-    width:         calc(35% - (#{$spacing-unit} / 2));
-}
-
-.footer-col-2 {
-    width: -webkit-calc(20% - (#{$spacing-unit} / 2));
-    width:         calc(20% - (#{$spacing-unit} / 2));
-}
-
-.footer-col-3 {
-    width: -webkit-calc(45% - (#{$spacing-unit} / 2));
-    width:         calc(45% - (#{$spacing-unit} / 2));
-}
-
-@include media-query($on-laptop) {
-    .footer-col-1,
-    .footer-col-2 {
-        width: -webkit-calc(50% - (#{$spacing-unit} / 2));
-        width:         calc(50% - (#{$spacing-unit} / 2));
-    }
-
-    .footer-col-3 {
-        width: -webkit-calc(100% - (#{$spacing-unit} / 2));
-        width:         calc(100% - (#{$spacing-unit} / 2));
-    }
-}
-
-@include media-query($on-palm) {
-    .footer-col {
-        float: none;
-        width: -webkit-calc(100% - (#{$spacing-unit} / 2));
-        width:         calc(100% - (#{$spacing-unit} / 2));
-    }
-}
-
-
-
-/**
- * Page content
- */
-.page-content {
-    padding: $spacing-unit 0;
-}
-
-.page-heading {
-    font-size: 20px;
-}
-
-.post-list {
-    margin-left: 0;
-    list-style: none;
-
-    > li {
-        margin-bottom: $spacing-unit;
-    }
-}
-
-.post-meta {
-    font-size: $small-font-size;
-    color: $grey-color;
-}
-
-.post-link {
-    display: block;
-    font-size: 24px;
-}
-
-
-
-/**
- * Posts
- */
-.post-header {
-    margin-bottom: $spacing-unit;
-}
-
-.post-title {
-    font-size: 42px;
-    letter-spacing: -1px;
-    line-height: 1;
-
-    @include media-query($on-laptop) {
-        font-size: 36px;
-    }
+  .post-meta {
+    font-size: .9rem;
+    color: #aaa;
+  }
 }
 
 .post-content {
-    margin-bottom: $spacing-unit;
+  margin-bottom: 2em;
 
-    h2 {
-        font-size: 32px;
+  h1, h2, h3, h4 {
+    margin-top: 2.2em;
+    margin-bottom: 1.2em;
+  }
+}
 
-        @include media-query($on-laptop) {
-            font-size: 28px;
-        }
-    }
+.post-list {
+  margin-left: 0;
+  list-style: none;
 
-    h3 {
-        font-size: 26px;
+  > li {
+    margin-bottom: 1.5em;
+  }
 
-        @include media-query($on-laptop) {
-            font-size: 22px;
-        }
-    }
+  .post-meta {
+    font-size: .9rem;
+    color: #aaa;
+  }
+}
 
-    h4 {
-        font-size: 20px;
+.site-footer {
+  padding: 1.6em 0 2em;
 
-        @include media-query($on-laptop) {
-            font-size: 18px;
-        }
-    }
+  > hr {
+    background: -webkit-gradient(linear, left top, right top, from(rgba(255,255,255,0)), color-stop(#eee), to(rgba(255,255,255,0)));
+    background: -webkit-linear-gradient(left, rgba(255,255,255,0), #eee, rgba(255,255,255,0));
+    background: linear-gradient(to right, rgba(255,255,255,0), #eee, rgba(255,255,255,0));
+  }
+
+  > small {
+    color: #aaa;
+    font-size: .8em;
+    display: block;
+  }
+}
+
+.highlighter-rouge {
+  margin: 1em 0;
+}
+
+.share {
+  padding: 1.2em 0 0;
+}
+
+.social {
+  text-align: center;
+  margin: 2em 0;
+  list-style: none;
+
+  li {
+    display: inline-block;
+    padding: 0 .6em;
+  }
+
+  a {
+    color: #999;
+    text-decoration: none;
+    font-size: 1.2em;
+  }
 }

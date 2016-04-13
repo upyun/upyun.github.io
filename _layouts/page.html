@@ -1,18 +1,23 @@
 ---
 layout: default
+bodyclass: page
 ---
-<div class="post">
+
+<article class="post">
 
   <header class="post-header">
     <h1 class="post-title">{{ page.title }}</h1>
+    <p class="post-meta">{{ page.date | date: "%Y/%m/%d" }}{% if page.author %} • {{ page.author }}{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
   </header>
 
-  <article class="post-content">
+  <div class="post-content">
     {{ content }}
-  </article>
+  </div>
 
-  <wb:share-button addition="text" type="button" ralateUid="2495973364"></wb:share-button>
-  <a href="https://twitter.com/share" class="twitter-share-button" data-size="large" data-hashtags="UPYUN">Tweet</a>
+  <div class="share">
+    <wb:share-button addition="text" type="button" ralateUid="2495973364"></wb:share-button>
+    <a href="https://twitter.com/share" class="twitter-share-button" data-size="large" data-hashtags="UPYUN">Tweet</a>
 
-  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-</div>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  </div>
+</article>
