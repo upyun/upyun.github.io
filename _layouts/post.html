@@ -1,21 +1,26 @@
 ---
 layout: default
+bodyclass: single
 ---
-<div class="post">
+
+<article class="post">
 
   <header class="post-header">
     <h1 class="post-title">{{ page.title }}</h1>
-    <p class="post-meta">{{ page.date | date: "%b %-d, %Y" }}{% if page.author %} • <a href="https://github.com/{{ page.author }}">{{ page.author }}</a>{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
+    <p class="post-meta">{{ page.date | date: "%Y/%m/%d" }}{% if page.author %} • <a href="https://github.com/{{ page.author }}">{{ page.author }}</a>{% endif %}{% if page.meta %} • {{ page.meta }}{% endif %}</p>
   </header>
 
-  <article class="post-content">
+  <div class="post-content">
     {{ content }}
-  </article>
 
-  <wb:share-button addition="text" type="button" ralateUid="2495973364"></wb:share-button>
-  <a href="https://twitter.com/share" class="twitter-share-button" data-size="large" data-hashtags="UPYUN">Tweet</a>
+    <div class="share">
+      <wb:share-button addition="text" type="button" ralateUid="2495973364"></wb:share-button>
+      <a href="https://twitter.com/share" class="twitter-share-button" data-size="large" data-hashtags="UPYUN">Tweet</a>
 
-  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-</div>
+      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+    </div>
+  </div>
 
-{% if page.comments %}{% include disqus.html %}{% endif %}
+  {% if page.comments %}{% include disqus.html %}{% endif %}
+
+</article>

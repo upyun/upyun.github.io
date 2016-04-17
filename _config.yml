@@ -10,6 +10,16 @@ github_username:  upyun
 # Build settings
 markdown: kramdown
 
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+sass:
+  style: compressed
+
+disqus:
+  shortname: upyunio
+
 # Custom settings
 permalink: pretty
 remoteurl: "http://onepiece.b0.upaiyun.com"
