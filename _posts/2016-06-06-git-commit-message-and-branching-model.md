@@ -169,7 +169,7 @@ comments: true
 
 [Vincent Driessen](http://nvie.com/about/) 的分支模型（Branching Model）介绍 Git 分支和开发，部署，问题修复时的工作流程，
 
-![workflow](/assets/git-workflow/workflow.png)
+![workflow]({{ site.remoteurl }}/assets/git-workflow/workflow.png)
 
 > Author: Vincent Driessen Original blog post: http://nvie.com/posts/a-succesful-git-branching-model License: Creative Commons BY-SA
 
