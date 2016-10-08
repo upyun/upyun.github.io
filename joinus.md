@@ -23,21 +23,6 @@ permalink: /join-our-team/
 
 > 加分项：对 NGINX 或 TrafficServer 有一定开发经验
 
-### 系统开发工程师（偏 API 方向）
-
-#### 岗位职责：
-
-* 负责 UPYUN API 系统研发工作
-* 负责 UPYUN SDK 开发和维护工作
-
-#### 岗位要求：
-
-* 熟悉 Linux 平台编程和网络编程
-* 扎实的系统层面编程能力
-* 熟悉 HTTP 协议和 REST 接口设计
-* 熟悉 OpenResty 框架
-* 熟悉 Python, Lua, Golang 等多门编程语言
-
 ### 系统开发工程师（偏 DNS 方向）
 
 #### 岗位职责：
@@ -81,19 +66,6 @@ permalink: /join-our-team/
 * 有一定的钻研精神，能够根据日志信息分析出问题点
 * 了解或者熟悉 Riak, Cowboy, Redis 等组件
 
-### 云处理开发工程师
-
-#### 岗位职责：
-
-* 负责 UPYUN 云处理平台研发工作
-
-#### 岗位要求：
-
-* 扎实的 C 语言编程基础及算法优化能力
-* 至少能够熟练使用一门脚本语言（Python, Ruby, Lua 等）进行日常开发
-* 对 GraphicsMagick、ImageMagick、FFmpeg 等开源项目有一定开发和调优经验
-* 熟悉服务端编程，熟悉 Linux 多线程、多进程模型
-
 ### 流媒体开发工程师
 
 #### 岗位职责：
@@ -106,6 +78,36 @@ permalink: /join-our-team/
 * 扎实的 C/C++ 语言编程基础及算法优化能力，熟悉 Linux 平台编程和网络编程
 * 精通 RTMP 和 HLS 协议，有丰富的流媒体协议开发经验
 * 熟悉 Python, Lua, Golang 等其中一门编程语言
+
+## 平台开发部招聘
+
+### 系统开发工程师（偏 API 方向）
+
+#### 岗位职责：
+
+* 负责 UPYUN API 系统研发工作
+* 负责 UPYUN SDK 开发和维护工作
+
+#### 岗位要求：
+
+* 熟悉 Linux 平台编程和网络编程
+* 扎实的系统层面编程能力
+* 熟悉 HTTP 协议和 REST 接口设计
+* 熟悉 OpenResty 框架
+* 熟悉 Python, Lua, Golang 等多门编程语言
+
+### 云处理开发工程师
+
+#### 岗位职责：
+
+* 负责 UPYUN 云处理平台研发工作
+
+#### 岗位要求：
+
+* 扎实的 C 语言编程基础及算法优化能力
+* 至少能够熟练使用一门脚本语言（Python, Ruby, Lua 等）进行日常开发
+* 对 GraphicsMagick、ImageMagick、FFmpeg 等开源项目有一定开发和调优经验
+* 熟悉服务端编程，熟悉 Linux 多线程、多进程模型
 
 > 更多其他招聘岗位请移步：<https://www.upyun.com/zh/about_join.html>
 
