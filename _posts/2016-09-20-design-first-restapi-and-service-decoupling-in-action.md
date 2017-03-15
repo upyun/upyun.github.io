@@ -18,7 +18,7 @@ comments: true
 
 * 支持标准的 http middleware, 方便集成 [Alice](https://github.com/justinas/alice) 插件管理工具, 可以直接使用大量与 `net/http` 兼容的各种 http middleware。
 * 代码侵入性不大, 如果后期想改用其他框架, 迁移起来也不太麻烦。
-* 知道 validator 功能, API spec 设计好后, 无需在代码中自己去写繁琐的边界校验功能。
+* 自带 validator 功能, API spec 设计好后, 无需在代码中自己去写繁琐的边界校验功能。
 * 可以通过代码生成 API 文档, 这样能 100% 的保证代码与文档保持一致。
 * 由于使用 Swagger 的标准, 方便使用兼容这一标准的一整套工具链, 保证 API 监控, spec render 等, 也能复用应用组那边的资源, 哈哈。
 * 项目也在发展中, 目前支持的 scheme 有 http 和 https, 后续会支持 ws 和 wss。我将来计划开发的 WebRTC 信令服务也可以考虑用这个框架来做。
