@@ -23,3 +23,5 @@ disqus:
 # Custom settings
 permalink: pretty
 remoteurl: "http://onepiece.b0.upaiyun.com"
+
+highlighter: pygments
