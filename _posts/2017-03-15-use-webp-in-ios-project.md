@@ -144,9 +144,10 @@ SDWebImage 安装之后内置 libwebp 源码，并在  UIImage+WebP.m 封装实�
 
 这样就可以达到以透明的方式使用 WebP 图片。但是由于 NSURLProtocol 的全局性质，影响范围大，这种方式存在潜在的风险，需要严格的过滤和限制 WebP 请求的拦截。NSURLProtocol 作用的叠加性质，也无法保证与其它第三方代码的兼容。虽然这种方式有很多代码可以参考，本文附带的 demo 也有此种方式的实现，但是在具体工程中使用还需要谨慎和完善。
 
+注意：上文已经提到这种全局 NSURLProtocol 拦截的方式存在较大风险。一些网络文章也普遍的引用这种实现方式，但是这段代码是不严谨的，原因在于 NSURLSession 支持流式的 HTTP 请求，或者在 response body 体积比较大的时候，从 didReceiveData 回调回来的一次数据仅仅是整个 response body 的一部分。
+
 
 ###  5 . WebP 的多媒体 API
-
 
 经过简单的开发，UIWebView 及 UIImageView 都可以进行 WebP 图片的展示，所以对于不需要兼顾 web 端的应用完全可以抛弃 jpg 及 gif 等格式，来全面使用 WebP 图片格式。但对于有 web 端的应用还需要保留通用图片格式以兼容 safari 浏览器。即使在这种情形下 Native app 也可以通过云处理接口来享用 WebP 格式带来的高效。
 
