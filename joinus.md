@@ -6,11 +6,11 @@ permalink: /join-our-team/
 
 ## 招聘信息
 
-> <https://www.upyun.com/zh/about_join.html>
+> <https://www.upyun.com/join_us>
 
 ## 了解我们
 
-UPYUN 官方 Github：<https://github.com/upyun>
+又拍云官方 Github：<https://github.com/upyun>
 
 ### 我们的技术栈（排名不分先后）：
 
@@ -18,6 +18,6 @@ Mac OS X, [Linux](https://www.kernel.org/), [Gentoo](https://www.gentoo.org/), [
 
 ### 我们的海贼王文化：
 
-UPYUN 内部大量使用了海贼王里面的人名、地名来给项目命名，例如 [Marco](http://onepiece.wikia.com/wiki/Marco), [Shanks](http://onepiece.wikia.com/wiki/Shanks), [Kuzan](http://onepiece.wikia.com/wiki/Kuzan) 等等。
+又拍云内部大量使用了海贼王里面的人名、地名来给项目命名，例如 [Marco](http://onepiece.wikia.com/wiki/Marco), [Shanks](http://onepiece.wikia.com/wiki/Shanks), [Kuzan](http://onepiece.wikia.com/wiki/Kuzan) 等等。
 
 想和我们一起去新世界寻找 ONE PIECE 吗？快投简历过来吧。
