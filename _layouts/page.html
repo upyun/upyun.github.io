@@ -15,7 +15,11 @@ bodyclass: page
   </div>
 
   <div class="share">
-    <wb:share-button addition="text" type="button" ralateUid="2495973364"></wb:share-button>
+    <wb:share-button id="wb_share_button" appkey="350720329" addition="text" type="button" ralateUid="2495973364"></wb:share-button>
+    <script type="text/javascript">
+      var wbbtn = document.getElementById("wb_share_button");
+      wbbtn.title = document.title+" ";
+    </script>
     <a href="https://twitter.com/share" class="twitter-share-button" data-size="large" data-hashtags="UPYUN">Tweet</a>
 
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
