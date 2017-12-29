@@ -31,17 +31,17 @@ URI 的组成
 
 `<userinfo>@<host>:<port>`
 
-`userinfo` 这个域用于填写一些用户相关的信息，比如可能会填写 "user:password"，当然这是不被建议的，抛开这个不讲，后面的 `<host>:<port>` 则是被熟知的服务器地址了，`host` 可以是域名，也可以是对应的 IP 地址，`port` 表示端口，这是一个可选项，如果不填写，会使用默认端口（和协议相关，比如 `http` 是 80）。
+`userinfo` 这个域用于填写一些用户相关的信息，比如可能会填写 "user:password"，当然这是不被建议的。抛开这个不讲，后面的 `<host>:<port>` 则是被熟知的服务器地址了，`host` 可以是域名，也可以是对应的 IP 地址，`port` 表示端口，这是一个可选项，如果不填写，会使用默认端口（也是和协议相关，比如 `http` 协议默认端口是 80）。
 
-`path`，在 `scheme` 和 `authority` 确定下来的情况下标识资源，`path` 由几个段组成，每个段用 `/` 来分隔，`path` 不等同于文件系统定义的路径。
+`path`，在 `scheme` 和 `authority` 确定下来的情况下标识资源，`path` 由几个段组成，每个段用 `/` 来分隔。注意，`path` 不等同于文件系统定义的路径。
 
-`query`，查询串（或者说参数串），用 `?` 和 `path` 区分开来，其具体的含义由这个资源来定义。 
+`query`，查询串（或者说参数串），用 `?` 和 `path` 区分开来，其具体的含义由这个具体资源来定义。
 
 
 保留字符
 -------
 
-从上面的描述里看，URI 的这 4 个组件，由特定的分隔符来分离，这些分隔符有着它们的特殊含义，如果在某个部分里出现这些分隔符，比如在 `path` 是 `/a/b?c.html`，那么 `c.html` 会被当做是 `query`，这样就破坏了原本的含义，因此 URI 引入保留字符集，这些字符用于特殊目的，如果它们被用于描述资源（不是作为分隔符出现），那么必须对它们转义。
+从上面的描述里看，URI 的这 4 个组件，由特定的分隔符来分离，这些分隔符各自有着特殊含义，而如果这些分隔符出现在某个组件内，比如 `path` 是 `/a/b?c.html`，那么从 URI 整体角度来看的话， `c.html` 会被当做是 `query`，这样就破坏了 `path` 原本的含义，因此 URI 引入了保留字符集，这些字符有着特殊的目的，如果它们被用于描述资源（而不是作为分隔符出现），那么必须对它们转义。
 
 那么什么情况下需要对一个字符转义呢，引用 [rfc2395#section-2.2](https://tools.ietf.org/html/rfc2396#section-2.2) 的一句话：
 > In general, a character is
@@ -50,7 +50,7 @@ URI 的组成
 
 即如果转义前后这个字符会影响到整个 URI 的意义，则它必须被转义。
 
-由于 URI 由多个部分构成，一个字符不转义，可能会对其中一个部分会造成影响，但对另一个部分没有影响，所以“保留字符集”是由具体的 URI 组成部分来规定。
+由于 URI 由多个组件构成，一个字符不转义，可能会对其中一个组件会造成影响，但对另一个组件没有影响，所以“保留字符集”是由具体的 URI 组件来规定的。
                     
 * 对 `path` 部分而言，保留字符集是（参考自 rfc2396）：
 
@@ -75,7 +75,7 @@ hex         = digit | "A" | "B" | "C" | "D" | "E" | "F" |
 特殊字符
 -------
 
-有一类不被允许用在 URI 里的特殊字符，它们被称为控制字符，即 ASCII 范围在0-31 之间的字符，以及 ASCII 码为 127 的这个字符。比如 `\t`，`\a` 这些（不包括空格），因为这些字符不可打印而且可能会消失（在某些场景下）。
+有一类不被允许用在 URI 里的特殊字符，它们被称为控制字符，即 ASCII 范围在0-31 之间的字符，以及 ASCII 码为 127 的这个字符。比如 `\t`，`\a` 这些（不包括空格），因为这些字符不可打印而且在某些场景下可能会消失。
 
 另外一类则是扩展 ASCII 码，即范围 128-255 的那些字符，它们不属于 "US-ASCII coded character set"，因此这些字符如果出现在 URI 中，需要被转义。
 
@@ -103,12 +103,12 @@ hex         = digit | "A" | "B" | "C" | "D" | "E" | "F" |
    such characters. These characters are "{", "}", "|", "\", "^", "~",
    "[", "]", and "`".
    
- 这段话引用自 [rfc1738 2.2 节](https://www.ietf.org/rfc/rfc1738.txt)。因为种种的原因，存在一类字符，它们是 "unsafe" 的，不加处理地存在在 URI 里，会破坏 URI 的语义完整性，对于这类字符，如果要出现在 URI 里，那么也得被转义。
+ 这段话引用自 [rfc1738 2.2 节](https://www.ietf.org/rfc/rfc1738.txt)。因为种种的原因，存在一类字符，它们是 "unsafe" 的，不加处理地存在在 URI 里，会破坏 URI 的语义完整性，对于这类字符，如果要出现在 URI 里，那么也得进行转义。
 
 nginx 的 URI 转义机制
 -------------------
 
-nginx （以现在最新的 1.13.6 版本为准）提供了一个名为 `ngx_escape_uri` 的函数，函数原型如下：
+nginx （以现在最新的 1.13.8 版本为准）提供了一个名为 `ngx_escape_uri` 的函数，函数原型如下：
 
 ```c
 uintptr_t ngx_escape_uri(u_char *dst, u_char *src, size_t size,
@@ -127,7 +127,7 @@ uintptr_t ngx_escape_uri(u_char *dst, u_char *src, size_t size,
 #define NGX_ESCAPE_MAIL_AUTH      6
 ```
 
-我们只关心其中的 `NGX_ESCAPE_URI `，`NGX_ESCAPE_ARGS `，`NGX_ESCAPE_URI_COMPONENT ` 三个，根据 nginx 官方提供的 [nginx 各模块和核心 API 介绍](https://www.nginx.com/resources/wiki/extending/api/)，这三个宏的含义如下：
+我们只关心其中的 `NGX_ESCAPE_URI `，`NGX_ESCAPE_ARGS `，`NGX_ESCAPE_URI_COMPONENT `，根据 nginx 官方所提供的 [nginx 模块和核心 API 介绍](https://www.nginx.com/resources/wiki/extending/api/)，这三个宏的含义如下：
 
 | Type | Definition |
 |-----|---------|
@@ -135,17 +135,17 @@ uintptr_t ngx_escape_uri(u_char *dst, u_char *src, size_t size,
 |NGX_ESCAPE_ARGS	| Escape query arguments|
 |NGX_ESCAPE_URI_COMPONENT|	Escape the URI after the domain|
 
-对应地，`ngx_escape_uri ` 这个函数，内置了几个相关的 `bitmap`，区别在于各自的转义字符集，具体可以查阅 nginx 的源码（ngx_string.c#1441）。
+对应地，`ngx_escape_uri ` 这个函数，内置了几个相关的 `bitmap`，区别就是在于各自的转义字符集，具体可以查阅 nginx 的源码（src/core/ngx_string.c）。
 
-其中针对整个 URI 的转义处理，`ngx_escape_uri ` 会把 `" ", "#", "%", "?"` 以及 `%00-%1F` 和 `%7F-%FF` 的字符转义；针对 `query` 的转义，会把 `" ", "#", "%", "&", "+", "?"` 以及 `%00-%1F` 和 `%7F-%FF` 的字符转义；针对 `path` + `query`（the URI after the domain）的转义，会把除英文字母，数字，以及 `"-", ".", "_", "~"` 这些以外的字符全部转义。
+其中针对整个 URI 的转义处理，`ngx_escape_uri ` 会把 `" ", "#", "%", "?"` 以及 `%00-%1F` 和 `%7F-%FF` 的字符转义；针对 `query` 的转义，会把 `" ", "#", "%", "&", "+", "?"` 以及 `%00-%1F` 和 `%7F-%FF` 的字符转义；针对 `path` + `query`（称之为 the URI after the domain）的转义，会把除英文字母，数字，以及 `"-", ".", "_", "~"` 这些以外的字符全部转义。
 
-可以看到，`NGX_ESCAPE_URI ` 和 `NGX_ESCAPE_ARGS ` 没有处理不安全字符，前者站在处理整个的 URI 的角度上编码，因此 `'/', '&'` 等分割符字符没有编码（但是对 `'?'` 却编码，这点的原因目前未知），后者站在处理 `query` 的角度上编码，所以对于会破坏 `query` 串语义的字符，都进行了编码；而 `NGX_ESCAPE_URI_COMPONENT `，处理角度不是整个 URI，而是 domain 之后的 URI 组件，它兼顾 `path` 和 `query` 的保留字符集，更加严格，遵守了 [rfc3986#section-2.2](#https://tools.ietf.org/html/rfc3986#section-2.2) 的规范。
+可以看到，`NGX_ESCAPE_URI ` 和 `NGX_ESCAPE_ARGS ` 没有处理不安全字符，前者站在处理整个的 URI 的角度上编码，后者站在处理 `query` 的角度上编码；而 `NGX_ESCAPE_URI_COMPONENT `，处理角度不是整个 URI，而是 domain 之后的 URI 组件，它兼顾 `path` 和 `query` 的保留字符集，更加严格，遵守了 [rfc3986#section-2.2](#https://tools.ietf.org/html/rfc3986#section-2.2) 的规范。
 
-这里顺便提一下 ngx_proxy 模块对应的 URI 转义处理，在构造向上游发送的请求行时，ngx_proxy 模块针对 `proxy_pass` 指令做出了不同的处理：
+这里顺便提一下 `ngx_proxy` 模块对应的 URI 转义处理，在构造向上游发送的请求行时，ngx_proxy 模块针对 `proxy_pass` 指令做出了不同的处理：
 
-* URI 包含了变量，将变量解析，然后直接构造 URI 发送到上游；
-* URI 不含变量，没有指定 `path` 部分，使用 client 发来的原生的 `path` 部分拼接到 URI，然后发送到上游；
-* URI 不含变量，指定了 `path`，这里的处理是，把 decode 过的，client 发来的 URI 里的 `path` 部分，去掉和当前 `location` 匹配的部分后，转义（按 `NGX_ESCAPE_URI` 来操作）以后，和 `proxy_pass` 里指定的 URI 的 `path` 拼接，发送到上游，比如这样的配置：
+* 如果指定的 URI 包含了变量，将解析变量，然后直接将解析后的 URI 发送到上游；
+* 如果 URI 不含变量，且没有指定 `path` 部分，将使用客户端发来的 `path` 部分拼接到 URI 中，然后发送到上游；
+* 如果URI 不含变量，且指定了 `path`，这里的处理比较特殊，nginx 会把解码过的，由客户端发来的 URI 里的 `path` 部分（去掉和当前 `location` 的公共前缀），进行编码（按 `NGX_ESCAPE_URI` 来操作），和 `proxy_pass` 指令指定 的 `path` 拼接，发送到上游，比如这样的配置：
 
 ```nginx
 
@@ -154,12 +154,12 @@ location /foo {
 }
 ```
 
-如果 client 发来的 URI 里 `path` 是 `/foo/%5B-%5D`，最终上游的 URI `path` 会是 `/bar/[-]`。
+如果客户端发来的 URI 里 `path` 是 `/foo/%5B-%5D`，最终上游的 URI `path` 会是 `/bar/[-]`。
 
-因此我们在做 nginx conf 配置的时候，也需要小心考虑 URI 转义的问题。
+因此我们在做 nginx conf 配置的时候，也需要小心考虑 URI 编码的问题。
 
 ngx_lua 的 URI 转义机制
--------------------
+-----------------------
 
 ngx_lua 提供的 `ngx.escape_uri` 函数，和 nginx 核心的转义机制也有一些差异（基于 ngx_lua v0.10.11），体现在对保留字符的处理上，`ngx.escape_uri ` 底层使用的 `ngx_http_lua_escape_uri`，结构和 `ngx_escape_uri` 一致，而对应的 `bitmap` 不同。
 
@@ -170,7 +170,7 @@ ngx_lua 提供的 `ngx.escape_uri` 函数，和 nginx 核心的转义机制也�
 总结
 ----
 
-在做相关的代理服务，网关服务时，URI 的编解码处理都是非常重要的，某些场景我们可能需要用 URI 来做 key，如果不处理好编解码问题，可能在 URI 复杂的情况下会达不到我们的预期效果，反而会浪费很多时间去排查问题的原因，特别地，在使用  nginx 和 ngx_lua 做服务时，我们更应该熟知它们处理 URI 编解码的区别，在理解它们的区别上做自身的业务处理，避免踩坑。
+在做相关的代理服务，网关服务时，URI 的编解码处理都是非常重要的，某些场景我们可能需要用 URI 来做 key（比如作为 hash 函数的因子），如果不处理好编解码问题，可能在 URI 复杂的情况下会达不到我们的预期效果，反而会浪费很多时间去排查问题的原因，特别地，在使用  nginx 和 ngx_lua 做服务时，我们更应该熟知它们在 URI 编解码上的区别，在理解它们的区别上做自身的业务处理，避免踩坑。
 
 参考资料
 -------
