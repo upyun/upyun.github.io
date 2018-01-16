@@ -6,6 +6,7 @@ author: smaug
 comments: true
 ---
 
+
 # 前言
 经常做系统分析会接触到很多有用的工具，比如 iostat,它是用来分析磁盘性能、系统 I/O 的利器。
 
@@ -64,6 +65,8 @@ OPTIONS
        -z     Tell iostat to omit output for any devices for which there was no activity during the sample period.
 ```
 简单讲，-x 参数能比较详细的给出一些指标，2 代表间隔时间为 2s，统计输出 10 次。
+
+<!-- more -->
 
 上面的命令可以看到如下的输出：
 
@@ -127,7 +130,7 @@ sde               0.00     0.00    0.00    0.00     0.00     0.00     8.19     0
 * avgrq-sz：每个 IO 的平均扇区数，即所有请求的平均大小，以扇区（512字节）为单位
 * avgqu-sz：平均意义上的请求队列长度
 * await：平均每个 I/O 花费的时间，包括在队列中等待时间以及磁盘控制器中真正处理的时间
-* svctm：每个 I/O 的服务时间。但注意上面的解释```Warning! Do not trust this field any more```。iostat 中关于每个 I/O 的真实处理时间不可靠
+* svctm：每个 I/O 的服务时间。但注意上面的解释 `Warning! Do not trust this field any more`。iostat 中关于每个 I/O 的真实处理时间不可靠
 * util：磁盘繁忙程度，单位为百分比
 
 分析建议：
@@ -180,7 +183,7 @@ svctm 为 4.55 ms，即每个 I/O 处理时间为 4.55 ms，这其实是有点�
 
 man 手册中给出了这么一段模凌两可的警告，却没有说明原因。那么原因是什么呢？svctm  又是怎么得到的呢？
 
-iostat 命令来自 [sysstat](https://github.com/sysstat/sysstat) 工具包，翻阅源码可以在 ```rd_stats.c``` 找到 svctm 的计算方法，其实 svctm 的计算依赖于其他指标：
+iostat 命令来自 [sysstat](https://github.com/sysstat/sysstat) 工具包，翻阅源码可以在 `rd_stats.c` 找到 svctm 的计算方法，其实 svctm 的计算依赖于其他指标：
 
 
 ```
@@ -237,7 +240,7 @@ A ? B : C
 ### util 磁盘饱和度
 >上面说到应该废弃 svctm 指标，因为它并不能作为衡量磁盘性能的指标，svctm 的计算是不准确的。但从上面的计算公式可以看到，唯一的不确定的变量是 util 的值。
 
-util 是用来衡量磁盘饱和度的指标，那么 util 是怎么计算的呢？还是上面的 ```compute_ext_disk_stats``` 函数：
+util 是用来衡量磁盘饱和度的指标，那么 util 是怎么计算的呢？还是上面的 `compute_ext_disk_stats` 函数：
 
 ```
 void compute_ext_disk_stats(struct stats_disk *sdc, struct stats_disk *sdp,
@@ -267,7 +270,7 @@ void compute_ext_disk_stats(struct stats_disk *sdc, struct stats_disk *sdp,
 ```
 util = ( current_tot_ticks - previous_tot_ticks ) /  采样周期 * 100
 ```
-那么 ```tot_ticks``` 是什么呢？这里需要关注 ```stats_disk``` 这个结构体，查阅源码在 ```rd_stats.h``` 文件中：
+那么 `tot_ticks` 是什么呢？这里需要关注 `stats_disk` 这个结构体，查阅源码在 `rd_stats.h` 文件中：
 
 ```
 /* rd_stats.h */
@@ -284,7 +287,7 @@ struct stats_disk {
     unsigned int       minor;
 };
 ```
-这里看不出具体每个字段是什么意义，源文件也没有作注释，接着看 ```rd_stats.c``` 文件是怎么对结构体赋值的，源文件 ```rd_stats.c``` 中：
+这里看不出具体每个字段是什么意义，源文件也没有作注释，接着看 `rd_stats.c` 文件是怎么对结构体赋值的，源文件 `rd_stats.c` 中：
 
 ```
 /*
@@ -308,7 +311,7 @@ struct stats_disk {
 ...
 }
 ```
-核心代码如上，具体来讲，iostat 的使用其实是依赖于 ```/proc/diskstats``` 文件，读取  ```/proc/diskstats``` 值，然后做进一步的分析处理。这里额外介绍下 ```/proc/diskstats``` 文件：
+核心代码如上，具体来讲，iostat 的使用其实是依赖于 `/proc/diskstats` 文件，读取  `/proc/diskstats` 值，然后做进一步的分析处理。这里额外介绍下 `/proc/diskstats` 文件：
 
 ```
 [root@localhost ~]# cat /proc/diskstats
@@ -374,7 +377,7 @@ F14	 | 3440	|weighted time spent doing I/Os (ms) |块设备队列非空时间加
 
 这里需要特别对第 7、11、13 个字段做一点解释，**第 7 个字段表示所有读请求的花费时间总和，这里把每个读 I/O 请求都计算在内；同理是第 11 个字段；那么为什么还有第 13 个字段呢？第 13 个字段不关心有多少 I/O 在处理，它只关心设备是否在做 I/O 操作，所以真实情况是第 7 个字段加上第 11 个字段的值会比第 13 个字段的值更大一点**。
 
-回到 ```rd_stats.c``` 源码中，```stats_disk``` 结构体是如何赋值的呢？
+回到 `rd_stats.c` 源码中，`stats_disk` 结构体是如何赋值的呢？
 
 ```
 ...
@@ -387,12 +390,12 @@ sscanf(line, "%u %u %s %lu %*u %lu %u %lu %*u %lu"
                  &tot_ticks, &rq_ticks) == 11)
   ...
 ```
-使用 fgets 函数获得 ```/proc/diskstats``` 文件中的一行数据，然后使用 sscanf 函数格式化字符串到结构体 ```stats_disk``` 的不同成员变量中。仔细看代码，格式符号有 14 个，但接收字符串的变量只有 11 个，这里要注意的是 sscanf 的使用：
+使用 fgets 函数获得 `/proc/diskstats` 文件中的一行数据，然后使用 sscanf 函数格式化字符串到结构体 `stats_disk` 的不同成员变量中。仔细看代码，格式符号有 14 个，但接收字符串的变量只有 11 个，这里要注意的是 sscanf 的使用：
 
 ```
 sscanf 中 * 表示读入的数据将被舍弃。带有*的格式指令不对应可变参数列表中的任何数据。
 ```
-这么一来，我们要寻找的 ```tot_ticks``` 就是第 13 个字段，也就是表示：
+这么一来，我们要寻找的 `tot_ticks` 就是第 13 个字段，也就是表示：
 
 ```
 13 - time spent doing I/Os (ms)，即 花费在 I/O 上的时间
@@ -416,11 +419,11 @@ st_disk_i->nr_ios  = (unsigned long long) rd_ios + (unsigned long long) wr_ios;
 double tput = ((double) (sdc->nr_ios - sdp->nr_ios)) * 100 / itv;
 ...
 ```
-经过对 ```/proc/diskstats``` 各个字段的分析，不难得出，```stats_disk``` 结构体中的成员变量 ```nr_ios``` 代表读写 I/O 成功完成的数量，也就是 IOPS。
+经过对 `/proc/diskstats` 各个字段的分析，不难得出，`stats_disk` 结构体中的成员变量 `nr_ios` 代表读写 I/O 成功完成的数量，也就是 IOPS。
 
-再回过来，那么 util 的计算是准确的吗？```tot_ticks``` 的计算是准确的吗？
+再回过来，那么 util 的计算是准确的吗？`tot_ticks` 的计算是准确的吗？
 
-经过上面的分析，```tot_ticks``` 其实表示的是 ```/proc/diskstats``` 文件中第 13 个字段，表示磁盘处理 I/O 操作的自然时间，不考虑并行性。那么由此得到的 util 就失去了最原本的意义。
+经过上面的分析，`tot_ticks` 其实表示的是 `/proc/diskstats` 文件中第 13 个字段，表示磁盘处理 I/O 操作的自然时间，不考虑并行性。那么由此得到的 util 就失去了最原本的意义。
 
 举个简单的例子，假设磁盘处理单个 I/O 的能力为 0.01ms，依次有 200 个请求提交，需要 2s 处理完所有的请求，如果采样周期为 1s，在 1s 的采样周期里 util 就达到了 100%；但是如果这 200 个请求分批次的并发提交，比如每次并发提交 2 个请求，即每次同时过来 2 个请求，那么需要 1s 即可完成所有请求，采样周期为 1s，util 也是 100%。
 
