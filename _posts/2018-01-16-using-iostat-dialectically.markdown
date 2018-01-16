@@ -166,7 +166,7 @@ svctm 为 4.55 ms，即每个 I/O 处理时间为 4.55 ms，这其实是有点�
 ```
 22.75 + 4.55 = 27.3 ms
 ```
-27.3 ms可以表征 iostat 中的 await 指标，因为 await 包括了等待时间和实际处理时间。但 iostat 的 await 为 62.78 ms，为何会比 iostat 得到的 await 值小这么多？**why?**
+27.3 ms 可以表征 iostat 中的 await 指标，因为 await 包括了等待时间和实际处理时间。但 iostat 的 await 为 62.78 ms，为何会比 iostat 得到的 await 值小这么多？**why?**
 
 ```
 27.3 ms <  62.78 ms
@@ -177,7 +177,7 @@ svctm 为 4.55 ms，即每个 I/O 处理时间为 4.55 ms，这其实是有点�
 
 
 ### 丢弃 svctm 
-我们一直想要得到的指标是能够衡量磁盘性能的指标，也就是单个 I/O 的 service time。但是 service time 和 iostat 无关，iostat没有任何一个参数能够提供这方面的信息。人们往往对 iostat 抱有过多的期待！
+我们一直想要得到的指标是能够衡量磁盘性能的指标，也就是单个 I/O 的 service time。但是 service time 和 iostat 无关，iostat 没有任何一个参数能够提供这方面的信息。人们往往对 iostat 抱有过多的期待！
 
 > Warning! Do not trust this field any more.  This field will be removed in a future sysstat version.
 
@@ -442,7 +442,7 @@ xds->svctm = tput ? xds->util / tput : 0.0;
 svctm = ( current_tot_ticks - previous_tot_ticks ) / (current_ios - previous_ios ) = 采样周期内设备进行 I/O 的自然时间  /  采样周期内读写 I/O 次数 
 ```
 
-故通过此表达式计算得到的 svctm 其实并能准确衡量单个 I/O 的处理能力。如果磁盘没有并行处理的能力，那么采样周期内读写 I/O 次数必然减少，相应的，svctm 的计算就会偏大。
+故通过此表达式计算得到的 svctm 其实并不能准确衡量单个 I/O 的处理能力。如果磁盘没有并行处理的能力，那么采样周期内读写 I/O 次数必然减少，相应的，svctm 的计算就会偏大。
 
 那回到开头提出的疑问，假定顺序请求情况下得到的平均等待时间 27.3ms 小于 iostat 看到的 await 62.78ms:
 
