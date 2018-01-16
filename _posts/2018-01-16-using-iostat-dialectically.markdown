@@ -2,7 +2,7 @@
 layout: post
 title: "辩证看待 iostat"
 data: 2018-01-16 17:51:34
-author: smaug
+author: linxi4linux
 comments: true
 ---
 
