@@ -1,6 +1,9 @@
 ---
-title: 使用 pprof 和 Flame-Graph 调试 Golang 应用
-date: 2018/01/21 • [anyfeel](https://github.com/anyfeel)
+layout: post
+title: "使用 pprof 和 Flame-Graph 调试 Golang 应用"
+date: 2018/01/21 12:22:09
+author: anyfeel
+comments: true
 ---
 
 ## 前言
